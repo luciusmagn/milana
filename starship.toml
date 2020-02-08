@@ -1,0 +1,17 @@
+prompt_order = [
+	"username",
+	"directory",
+	"git_status",
+	"rust",
+	"cmd_duration",
+	"jobs",
+	"battery",
+	"character",
+]
+add_newline = false
+
+[character]
+symbol = "#"
+
+[rust]
+symbol = "rs "

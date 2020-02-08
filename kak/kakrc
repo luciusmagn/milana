@@ -1,0 +1,185 @@
+###############################################################################
+#                                                                             #
+#                                                                             #
+#                    Duponin's Kakoune config file                            #
+#                           magnusi version                                   #
+#                                                                             #
+###############################################################################
+
+# Load the plugin manager
+source "%val{config}/plugins/plug.kak/rc/plug.kak"
+
+# source custom syntax files
+source "%val{config}/mkfile.kak"
+
+# Colorscheme
+colorscheme base16-magnusi
+
+# Enable soft wrap at end of buffer (no breaking line)
+addhl global/ wrap
+
+# Show white spaces
+add-highlighter global/ show-whitespaces
+
+# Add line number in relative mode
+add-highlighter global/ number-lines -relative -hlcursor -separator ' '
+
+# Vim Highlightment like with matching insert
+plug "laelath/kakoune-show-matching-insert"
+
+# Surrounds like Vim addon
+plug "h-youhei/kakoune-surround" %{
+	declare-user-mode surround
+	map global surround s ':surround<ret>' -docstring 'surround'
+	map global surround c ':change-surround<ret>' -docstring 'change'
+	map global surround d ':delete-surround<ret>' -docstring 'delete'
+	map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
+	map global normal '<a-s>' ':enter-user-mode surround<ret>'
+}
+
+# Have clean and soft tabs
+plug "andreyorst/smarttab.kak" %{
+	set-option global softtabstop 4
+	set-option global tabstop 4
+	hook global WinSetOption .* noexpandtab
+}
+
+# A powerline theme
+plug "andreyorst/powerline.kak" %{
+	set-option global powerline_separator ''
+	set-option global powerline_separator_thin ''
+	set-option global powerline_ignore_warnings true
+	set-option global powerline_format 'git bufname smarttab mode_info filetype client session position'
+	hook -once global WinDisplay .* %{
+	    powerline-theme base16-gruvbox
+	}
+}
+
+# File explorer
+plug "alexherbo2/explore.kak"
+
+# User buffers easier
+plug "Delapouite/kakoune-buffers" %{
+	# Suggested hook
+	hook global WinDisplay .* info-buffers
+
+	# Suggested mappings
+	map global user b ':enter-buffers-mode<ret>'              -docstring 'buffers…'
+	map global user B ':enter-user-mode -lock buffers<ret>'   -docstring 'buffers (lock)…'
+
+	# Suggested aliases
+	alias global bd delete-buffer
+	alias global bf buffer-first
+	alias global bl buffer-last
+	alias global bo buffer-only
+	alias global bo! buffer-only-force
+}
+
+# Pairs stuff
+ plug "alexherbo2/auto-pairs.kak" %{
+	 hook global WinCreate .* %{
+	       auto-pairs-enable
+	 }
+	 map global user s -docstring 'Surround' ': auto-pairs-surround<ret>'
+	 map global user S -docstring 'Surround++' ': auto-pairs-surround _ _ * *<ret>'
+ }
+
+# Save file as root
+plug "occivink/kakoune-sudo-write"
+
+# Find and replace
+plug "occivink/kakoune-find"
+
+# Highlight line/column
+plug "insipx/kak-crosshairs" %{
+	cursorline
+}
+
+# Sublime text style multiple cursors select add mapping
+# https://discuss.kakoune.com/t/sublime-text-style-multiple-cursor-select-add-mapping/150/18
+define-command -override -docstring "select a word under cursor, or add cursor on next occurrence of current selection" \
+select-or-add-cursor %{ execute-keys -save-regs '' %sh{
+	if [ $(expr $(echo $kak_selection | wc -m) - 1) -eq 1 ]; then
+	    echo "<a-i>w*"
+	else
+	    echo "*<s-n>"
+	fi
+}}
+
+map global normal '<c-v>' ': select-or-add-cursor<ret>' -docstring "add cursor on current word, and jump to the next match" 
+
+# To have clean tabs with Kakoune
+set-option global tabstop 4
+set-option global indentwidth 4
+
+# Teleport to file easily
+plug "delapouite/kakoune-goto-file" %{
+  # Suggested mappings
+  map global goto f '<esc>: goto-file<ret>' -docstring 'file'
+  map global goto F f -docstring 'file (legacy)'
+}
+
+# Vertical selection
+plug "occivink/kakoune-vertical-selection" %{
+	map global user v     ': vertical-selection-down<ret>' -docstring "Vertical selection down"
+	map global user <a-v> ': vertical-selection-up<ret>' -docstring "Vertical selection up"
+	map global user V     ': vertical-selection-up-and-down<ret>' -docstring "Vertical selection up and down"
+}
+
+# Indent the current selection with <tab>
+#map global insert <tab> '<a-;><gt>'
+# De-indent the current selection with <s-tab>
+#map global insert <s-tab> '<a-;><lt>'
+
+# Comment a line
+map global user / ": comment-line <ret>"
+map global user 9 ": comment-block <ret>"
+
+hook global BufCreate .* %{
+	declare-option line-specs my_flags
+	set-option buffer my_flags %val{timestamp} '1| '
+	add-highlighter buffer/ flag-lines default,rgb:212121 my_flags
+	noexpandtab
+}
+
+hook global InsertCompletionShow .* %{
+	try %{
+	    # this command temporarily removes cursors preceded by whitespace;
+	    # if there are no cursors left, it raises an error, does not
+	    # continue to execute the mapping commands, and the error is eaten
+	    # by the `try` command so no warning appears.
+	    execute-keys -draft 'h<a-K>\h<ret>'
+	    map window insert <tab> <c-n>
+	    map window insert <s-tab> <c-p>
+	}
+}
+hook global InsertCompletionHide .* %{
+	unmap window insert <tab> <c-n>
+	unmap window insert <s-tab> <c-p>
+}
+
+plug "lePerdu/kakboard" %{
+	hook global WinCreate .* %{ kakboard-enable }
+}
+
+plug "alexherbo2/move-line.kak" %{
+	map global normal <c-up> '<esc>:move-line-above 1<ret>'
+	map global normal <c-down> '<esc>:move-line-below 1<ret>'
+	map global insert <c-up> '<esc>:move-line-above 1<ret>i'
+	map global insert <c-down> '<esc>:move-line-below 1<ret>i'
+}
+
+plug "occivink/kakoune-phantom-selection" %{
+	map global normal <c-a-f> ": phantom-selection-add-selection<re>"
+	map global normal <c-a-F> ": phantom-selection-select-all; phantom-selection-clear<ret>"
+	map global normal <c-f>   ": phantom-selection-iterate-next<ret>"
+	map global normal <c-F>   ": phantom-selection-iterate-prev<ret>"
+}
+
+plug "eraserhd/kak-ansi"
+
+hook global  InsertChar \n %{ exec -draft k<a-x> s^\h+<ret>y j<a-h>P }
+
+#eval %sh{kak-lsp --kakoune -s $kak_session}
+lsp-enable
+
