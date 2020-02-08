@@ -16,7 +16,7 @@ conky.config = {
 --#############################################
 	background = true,
 	use_xft = true,
-	font = 'ProFontWindowsCzech:size=9',
+	font = 'ProFontExtended:size=11',
 	xftalpha = 1,
 	update_interval = 1.1,
 	total_run_times = 0,
@@ -30,7 +30,7 @@ conky.config = {
 -- may vary. Comment/uncomment to suit.
 --#############################################
 --# no compositor
-	own_window_type = 'override',
+	own_window_type = 'desktop',
 	own_window_argb_visual = false,
 
 --# xcompmgr
@@ -66,7 +66,7 @@ conky.config = {
 };
 
 conky.text = [[
-${font ProFontWindowsCzech:size=52}${alignc}${time %H:%M:%S}${alignc}${font ProFontWindowsCzech:size=9}
+${font ProFontExtended:size=45}${alignc}${time %H:%M:%S}${alignc}${font ProFontExtended:size=11}
 
 I N F O
 ${hr}
@@ -80,36 +80,37 @@ RAM: $memperc% ${alignr}${membar 8,60}
 
 Disk usage:$alignr${fs_bar 8,60}
 Battery: ${alignr}${battery_bar 8,60}
+Layout: ${alignr}${execi 1 xkblayout-state print %s | tr "[:lower:]" "[:upper:]"} 
 ${if_up wlan0}
 802.11 quality:$alignr${wireless_link_bar 8,60 wlan0}
 802.11 bitrate:$alignr${wireless_bitrate wlan0}
 ${endif}${if_up tun0} VPN is active. ${endif}
 Z K R A T K Y
 ${hr}
-Alt+p$alignr Spustit program
-Alt+{1..6}$alignr Přepnout tag
-Alt+t$alignr Tiling mód
-Alt+f$alignr Floating mód
-Alt+o$alignr Monocle mód
-Alt+u$alignr Floating Monocle mód
-Alt+(j|k)$alignr Přepnout aktivní okno
-Alt+(h|l$alignr Rozšířit/zůžit master
-Alt+(F1|F2)$alignr módy jasu displeje
-Alt+(d|i)$alignr   Přidat/odebrat okno do masteru
-Shift+Alt+c$alignr Zavřít program
-Shift+Alt+q$alignr Vypnout DWM
-Shift+Alt+Enter$alignr Terminál
+Super+Enter$alignr terminál
+Super+e$alignr spustit program
+Super+Escape$alignr reload bspwm
+Super+alt+q$alingr kill bspwm
+Super+g$alignr Zamění za největší okno
+Super+t$alignr Přepne na tiling mód
+Super+T$alignr Přepne na pseudo-tiling
+Super+s$alignr Floating mód
+Super+f$alignr Fullscreen
+Super+o/i$alignr přepíná okna dle věku
+Super+h/j/k/l$alignr přepíná okna podle směru
+Super+1-9$alignr přepíná workspace
+Super+alt+h/j/k/l$alignr zvětšuje okno směrem
+Super+alt+H/J/K/L$alignr zmenšuje okno směrem
+Super+Left/Down/Up/Right pohybuje oknem
 
-S  A L T + P:
+S  A L T + E:
 ${hr}
 scrot$alignr Screenshot
 scrot --select$alignr Screenshot výřezu
 mupdf <cesta>$alignr Otevře PDF
 firefox$alignr ...
-termite$alignr Terminál
+alacritty$alignr Terminál
 transmission-gtk$alignr Torrent
-subl3$alignr Sublime Text 3 editor
-ffplay <cesta>$alignr Přehrávač
 feh <cesta>$alignr Prohlížení obrázků
 redshift -x$alignr Resetuje červený posun
 redshift -oO <číslo>$alignr Zoranžoví obrazovku
@@ -120,14 +121,6 @@ $alignr(pro odemk. heslo+Enter)
 
 M Y Š
 ${hr}
--- LClick: klik levým tlačítkem
--- RClick: klik pravým tlačítkem
--- MClick: klik kolečkem (nebo ekvivelentem)
-
-Alt+LClick+Posun$alignr Posune/Vytrhne okno
-Alt+RClick+Posun$alignr Změní velikost okna
-Alt+MClick$alignr Vrátí okno zpět do mřížky
-LClick na tag$alignr Zobrazit i okna z tagu
-Alt+LClick na tag$alignr Přesun okna do tagu
-NClick na hodiny$alignr Terminál
+Super+LClick${alignr} zamění okno
+Super+RClick${alignr} mění velikosti layoutu
 ]];
